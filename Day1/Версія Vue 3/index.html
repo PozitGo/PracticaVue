@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <title>День 1 Vue3</title>
+    <style>
+      .red {
+        color: red;
+      }
+      .black {
+        color: black;
+      }
+      .green {
+        width: 100px;
+        height: 100px;
+        background-color: color;
+      }
+      .center {
+        width: 28%;
+        margin: 0 auto;
+      }
+      .center p {
+        font-size: 48px;
+      }
+      .center #source {
+        font-size: 30px;
+      }
+      .button {
+        background-color: #007bff;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="center" id="app">
+      <input type="radio" name="author" v-model="isAuthor" value="exist" />
+      Є автор
+      <input type="radio" name="author" v-model="isAuthor" value="" />
+      Немає автора
+      <br />
+
+      <div class="quote" v-for="qt in filteredQuotes">
+        <h3 v-bind:class="qt.quote.length > 40 ? 'red' : 'black'">
+          {{qt.quote}}
+        </h3>
+        <h5>{{qt.source}}</h5>
+      </div>
+      <button @click="sortBySource()" class="button">Сортувати</button>
+      <div class="quote" v-for="qt in sortedQuotes">
+        <h3 v-bind:class="qt.quote.length > 40 ? 'red' : 'black'">
+          {{qt.quote}}
+        </h3>
+        <h5>{{qt.source}}</h5>
+      </div>
+    </div>
+  </body>
+  <script>
+    var quotesArray = [
+      {
+        quote: "This is just a Quote1",
+        source: "Christopher",
+      },
+      {
+        quote: "This is just a Quote2",
+        source: "Martin",
+      },
+      {
+        quote:
+          "This is just a Quote3 ............................................................",
+        source: "Dennis",
+      },
+      {
+        quote: "This is just a Quote4",
+        source: "Dmitro",
+      },
+      {
+        quote: "This is just a Quote5",
+        source: "",
+      },
+      {
+        quote: "This is just a Quote6",
+        source: "",
+      },
+    ];
+
+    const { createApp, ref, computed } = Vue;
+    createApp({
+      setup() {
+        const qoutes = ref(quotesArray);
+        const isAuthor = ref("");
+        const sortedQuotes = ref([]);
+
+        const filteredQuotes = computed(() => {
+          return qoutes.value.filter((element) => {
+            return Boolean(isAuthor.value) == Boolean(element.source);
+          });
+        });
+        sortBySource = function (source) {
+          sortedQuotes.value = qoutes.value.sort((a, b) =>
+            a.value > b.value ? 1 : -1
+          );
+        };
+
+        return {
+          qoutes,
+          isAuthor,
+          filteredQuotes,
+          sortedQuotes,
+          sortBySource,
+        };
+      },
+    }).mount("#app");
+  </script>
+</html>

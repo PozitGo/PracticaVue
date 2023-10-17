@@ -1,0 +1,30 @@
+[
+  {
+    "id": 1,
+    "fullName": "Іванов Іван Іванович",
+    "group": "РПЗ 20 2/9",
+    "birthYear": 2005,
+    "isPassedExam": true
+  },
+  {
+    "id": 2,
+    "fullName": "Ушаков Ростислав Евгеневич",
+    "group": "РПЗ 20 1/9",
+    "birthYear": 2005,
+    "isPassedExam": false
+  },
+  {
+    "id": 3,
+    "fullName": "Чупрун Дмитро Олександрович",
+    "group": "РПЗ 20 1/9",
+    "birthYear": 2005,
+    "isPassedExam": true
+  },
+  {
+    "id": 4,
+    "fullName": "Демидьонок Роман Жопопорвович",
+    "group": "РПЗ 20 1/9",
+    "birthYear": 2005,
+    "isPassedExam": true
+  }
+]

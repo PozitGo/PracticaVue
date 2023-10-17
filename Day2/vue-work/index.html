@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Students List</title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script defer src="index.js"></script>
+  </head>
+  <body>
+    <div class="container" id="app">
+      <h1>Пошук</h1>
+      <input
+        class="search-input"
+        type="text"
+        name="search"
+        v-model="search"
+        placeholder="Введіть ім'я..."
+      />
+      <table class="student-table">
+        <thead>
+          <tr>
+            <th>ПІБ</th>
+            <th>Група</th>
+            <th>Рік народження</th>
+            <th>Здав практичну</th>
+            <th>Дії</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="st in students">
+            <td
+              :class="st.fullName.includes(search) && search !== '' ? 'highlighted' : ''"
+            >
+              {{ st.fullName }}
+            </td>
+            <td>{{ st.group }}</td>
+            <td>{{ st.birthYear }}</td>
+            <td class="checkbox-container">
+              <input
+                type="checkbox"
+                name="isPassedExam"
+                v-model="st.isPassedExam"
+              />
+            </td>
+            <td>
+              <button @click="deleteStudent(st)">DELETE</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </body>
+</html>
