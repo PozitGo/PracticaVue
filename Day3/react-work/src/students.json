@@ -1,0 +1,34 @@
+[
+  {
+    "id": 1,
+    "image": "https://media.discordapp.net/attachments/1128394338846654534/1164155460954357840/pngtree-hand-drawn-cute-graduate-student-image_1235387.png?ex=65422f42&is=652fba42&hm=277712a6fb7f41c045ff4565a4809898346cf73e3afdc13a1e85db7384435d50&=",
+    "fullName": "Іванов Іван Іванович",
+    "group": "РПЗ 20 2/9",
+    "grade": 4,
+    "isPassedPR": true
+  },
+  {
+    "id": 2,
+    "image": "https://media.discordapp.net/attachments/1128394338846654534/1164155460954357840/pngtree-hand-drawn-cute-graduate-student-image_1235387.png?ex=65422f42&is=652fba42&hm=277712a6fb7f41c045ff4565a4809898346cf73e3afdc13a1e85db7384435d50&=",
+    "fullName": "Ушаков Ростислав Евгеневич",
+    "group": "РПЗ 20 1/9",
+    "grade": 4,
+    "isPassedPR": false
+  },
+  {
+    "id": 3,
+    "image": "https://media.discordapp.net/attachments/1128394338846654534/1164155460954357840/pngtree-hand-drawn-cute-graduate-student-image_1235387.png?ex=65422f42&is=652fba42&hm=277712a6fb7f41c045ff4565a4809898346cf73e3afdc13a1e85db7384435d50&=",
+    "fullName": "Чупрун Дмитро Олександрович",
+    "group": "РПЗ 20 1/9",
+    "grade": 4,
+    "isPassedPR": true
+  },
+  {
+    "id": 4,
+    "image": "https://media.discordapp.net/attachments/1128394338846654534/1164155460954357840/pngtree-hand-drawn-cute-graduate-student-image_1235387.png?ex=65422f42&is=652fba42&hm=277712a6fb7f41c045ff4565a4809898346cf73e3afdc13a1e85db7384435d50&=",
+    "fullName": "Демидьонок Роман Жопопорвович",
+    "group": "РПЗ 20 1/9",
+    "grade": 4,
+    "isPassedPR": true
+  }
+]

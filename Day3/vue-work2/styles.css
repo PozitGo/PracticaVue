@@ -1,0 +1,22 @@
+body {
+  font-family: "Arial", sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #f4f4f4;
+}
+
+#databinding {
+  padding: 20px;
+  border: 1px solid #ddd;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  background-color: white;
+}
+
+#databinding > div {
+  margin-top: 20px;
+  transition: background-color 0.3s;
+  border: 2px solid #aaa;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+}
