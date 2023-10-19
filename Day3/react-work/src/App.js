@@ -3,16 +3,26 @@ import styles from "./App.module.css";
 import students from "./students.json";
 import Edit from "./Edit.png";
 
+const initialState = {
+  studentImage: "",
+  studentName: "",
+  studentGroup: "",
+  studentPassedPR: false,
+  studentGrade: 1,
+};
+
 function App() {
   const [search, setSearch] = useState("");
   const [studentList, setStudentList] = useState(students);
   const [editingStudentId, setEditingStudentId] = useState(null);
 
-  const [studentImage, setStudentImage] = useState("");
-  const [studentName, setStudentName] = useState("");
-  const [studentGroup, setStudentGroup] = useState("");
-  const [studentPassedPR, setStudentPassedPR] = useState(false);
-  const [studentGrade, setStudentGrade] = useState(1);
+  const [studentImage, setStudentImage] = useState(initialState.studentImage);
+  const [studentName, setStudentName] = useState(initialState.studentName);
+  const [studentGroup, setStudentGroup] = useState(initialState.studentGroup);
+  const [studentPassedPR, setStudentPassedPR] = useState(
+    initialState.studentPassedPR
+  );
+  const [studentGrade, setStudentGrade] = useState(initialState.studentGrade);
 
   const getFilteredStudents = (list, query) =>
     list.filter((student) => student.fullName.includes(query));
@@ -61,11 +71,15 @@ function App() {
       setStudentList((prevStudents) => [...prevStudents, newOrUpdatedStudent]);
     }
 
-    setStudentImage("");
-    setStudentName("");
-    setStudentGroup("");
-    setStudentPassedPR(false);
-    setStudentGrade(1);
+    resetStates();
+  };
+
+  const resetStates = () => {
+    setStudentImage(initialState.studentImage);
+    setStudentName(initialState.studentName);
+    setStudentGroup(initialState.studentGroup);
+    setStudentPassedPR(initialState.studentPassedPR);
+    setStudentGrade(initialState.studentGrade);
   };
 
   const startEditing = (studentId) => {
