@@ -54,7 +54,7 @@ const app = createApp({
     const convert = async ({ amount, fromCurrency, toCurrency }) => {
       if (amount !== "" && fromCurrency !== "" && toCurrency !== "") {
         if (fromCurrency === toCurrency) {
-          converterCurrency.value = amount;
+          converterCurrency.value = Number(amount.toFixed(2));
         } else {
           const { data } = await axios.get(
             "https://api.monobank.ua/bank/currency"
@@ -69,15 +69,23 @@ const app = createApp({
                 fromCurrencyNumber,
                 toCurrencyNumber
               );
-              converterCurrency.value = amount * CurrencyRate.rateBuy;
+              converterCurrency.value = Number(
+                (amount * CurrencyRate.rateBuy).toFixed(2)
+              );
             } else if (fromCurrencyNumber === 980) {
               const CurrencyRate = getRate(data, toCurrencyNumber, 980);
-              converterCurrency.value = amount / CurrencyRate.rateSell;
+              converterCurrency.value = Number(
+                (amount / CurrencyRate.rateSell).toFixed(2)
+              );
             } else {
               const fromCurrencyRate = getRate(data, fromCurrencyNumber, 980);
               const toCurrencyRate = getRate(data, toCurrencyNumber, 980);
-              converterCurrency.value =
-                (amount * fromCurrencyRate.rateBuy) / toCurrencyRate.rateSell;
+              converterCurrency.value = Number(
+                (
+                  (amount * fromCurrencyRate.rateBuy) /
+                  toCurrencyRate.rateSell
+                ).toFixed(2)
+              );
             }
           }
         }
