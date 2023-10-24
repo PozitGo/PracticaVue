@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Змінна тема оформлення</title>
+    <link id="theme" rel="stylesheet" type="text/css" href="light-theme.css" />
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        line-height: 1.6;
+        margin: 0;
+        padding: 0;
+        transition: background 0.3s, color 0.3s;
+      }
+      h1 {
+        text-align: center;
+        font-size: 2em;
+        margin-top: 50px;
+      }
+      .theme-switcher {
+        display: inline-block;
+        margin: 10px;
+        font-size: 1.2em;
+      }
+      label {
+        margin-right: 10px;
+      }
+      input[type="radio"] {
+        transform: scale(1.5);
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Змінна тема оформлення</h1>
+    <div style="text-align: center; margin-top: 20px">
+      <div class="theme-switcher">
+        <label for="light-theme">Світла тема</label>
+        <input
+          type="radio"
+          name="theme"
+          id="light-theme"
+          value="light-theme.css"
+        />
+      </div>
+
+      <div class="theme-switcher">
+        <label for="dark-theme">Темна тема</label>
+        <input
+          type="radio"
+          name="theme"
+          id="dark-theme"
+          value="dark-theme.css"
+        />
+      </div>
+    </div>
+
+    <script>
+      const themeRadioButtons = document.querySelectorAll(
+        'input[name="theme"]'
+      );
+      const currentTheme = localStorage.getItem("theme");
+
+      if (currentTheme) {
+        document.getElementById("theme").href = currentTheme;
+        const selectedThemeRadio = document.querySelector(
+          `input[value="${currentTheme}"]`
+        );
+        if (selectedThemeRadio) {
+          selectedThemeRadio.checked = true;
+        }
+      }
+
+      themeRadioButtons.forEach((radioButton) => {
+        radioButton.addEventListener("change", (event) => {
+          const selectedTheme = event.target.value;
+          document.getElementById("theme").href = selectedTheme;
+          localStorage.setItem("theme", selectedTheme);
+        });
+      });
+    </script>
+  </body>
+</html>
