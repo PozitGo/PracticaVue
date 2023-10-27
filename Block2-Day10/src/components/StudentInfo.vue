@@ -4,6 +4,15 @@
     <div v-if="error" class="error-message">Error loading data.</div>
     <div class="content" v-else>
       <p>Amount: {{ studentsCount }}</p>
+      <button
+        class="change-theme"
+        :class="
+          store.state.selectedTheme === 'light' ? 'light-theme' : 'dark-theme'
+        "
+        @click="toggleTheme"
+      >
+        Змінити колір
+      </button>
       <div class="profile">
         <div v-if="student.photo" class="photo-container">
           <img
@@ -53,6 +62,11 @@ const studentsCount = computed(() => {
   return store.getters.getCount;
 });
 
+const toggleTheme = () => {
+  const newTheme = store.state.selectedTheme === "light" ? "dark" : "light";
+  store.commit("setTheme", newTheme);
+};
+
 onMounted(async () => {
   await axios
     .get(`http://34.82.81.113:3000/students/${id.value}`)
@@ -69,6 +83,71 @@ onMounted(async () => {
 </script>
 
 <style scoped>
+.change-theme {
+  padding: 10px 20px;
+  font-size: 16px;
+  border-radius: 5px;
+  transition: background-color 0.3s, color 0.3s, transform 0.1s, box-shadow 0.3s;
+  cursor: pointer;
+  border: none;
+  margin: 10px;
+}
+
+.change-theme:focus {
+  outline: none;
+}
+
+.change-theme:active {
+  transform: scale(0.95);
+}
+
+.change-theme.light-theme {
+  background-color: #f0f0f0;
+  color: #333;
+  border: 2px solid #ccc;
+}
+
+.change-theme.light-theme:hover {
+  background-color: #ccc;
+}
+
+.change-theme.dark-theme {
+  background-color: #333;
+  color: #fff;
+  border: 2px solid #555;
+}
+
+.change-theme.dark-theme:hover {
+  background-color: #555;
+}
+.light-theme {
+  background-color: #f0f0f0;
+  color: #333;
+  border: 2px solid #ccc;
+  border-radius: 5px;
+  padding: 10px 20px;
+  font-size: 16px;
+}
+
+.light-theme:hover {
+  background-color: #ccc;
+  color: #333;
+}
+
+.dark-theme {
+  background-color: #333;
+  color: #fff;
+  border: 2px solid #555;
+  border-radius: 5px;
+  padding: 10px 20px;
+  font-size: 16px;
+}
+
+.dark-theme:hover {
+  background-color: #555;
+  color: #fff;
+}
+
 body {
   background-color: #f4f2f7;
   font-family: Arial, sans-serif;

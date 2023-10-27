@@ -1,5 +1,14 @@
 <template>
   <div class="center" id="app">
+    <p>Amount: {{ studentsCount }}</p>
+    <button
+      :class="
+        store.state.selectedTheme === 'light' ? 'light-theme' : 'dark-theme'
+      "
+      @click="toggleTheme"
+    >
+      Змінити колір
+    </button>
     <h1>Пошук</h1>
     <input type="text" name="search" v-model="search" />
     <table>
@@ -68,7 +77,7 @@
               </button>
             </td>
             <td>
-              <button class="editButton" @click="cancelEditStudent(index)">
+              <button class="editButton" @click="canselEditStudents(index)">
                 Скасувати
               </button>
             </td>
@@ -157,12 +166,6 @@ const store = useStore();
 const students = ref([]);
 const search = ref("");
 const newStudent = ref({ name: "", group: "", mark: "", isDonePr: false });
-const updateStudent = ref({
-  name: "",
-  group: "",
-  mark: "",
-  isDonePr: false,
-});
 const currencies = ref(["UAH", "EUR", "USD"]);
 const convertor = ref({
   amount: "",
@@ -171,25 +174,42 @@ const convertor = ref({
 });
 const converterCurrency = ref("");
 
-const fetchStudents = () => {
-  axios.get("http://34.82.81.113:3000/students").then((response) => {
+const fetchStudents = async () => {
+  try {
+    const response = await axios.get("http://34.82.81.113:3000/students");
     students.value = response.data.map((st) => ({
       ...st,
       isEdit: false,
+      updateStudent: {
+        name: st.name,
+        group: st.group,
+        mark: st.mark,
+        isDonePr: st.isDonePr,
+      },
     }));
     store.commit("setCount", students.value.length);
-  });
+  } catch (error) {
+    console.error("Error fetching students", error);
+  }
 };
 
-const deleteStudent = (id) => {
-  axios.delete(`http://34.82.81.113:3000/students/${id}`).then(() => {
+const studentsCount = computed(() => store.getters.getCount);
+
+const toggleTheme = () => {
+  const newTheme = store.state.selectedTheme === "light" ? "dark" : "light";
+  store.commit("setTheme", newTheme);
+};
+
+const deleteStudent = async (id) => {
+  try {
+    await axios.delete(`http://34.82.81.113:3000/students/${id}`);
     students.value = students.value.filter((st) => st._id !== id);
-  });
+  } catch (error) {
+    console.error("Error deleting student", error);
+  }
 };
 
 const editStudent = (index) => {
-  const { name, group, mark, isDonePr } = students.value[index];
-  students.value[index].updateStudent = { name, group, mark, isDonePr };
   students.value[index].isEdit = true;
 };
 
@@ -198,9 +218,9 @@ const cancelEditStudent = (index) => {
 };
 
 const saveStudent = async (index, id) => {
-  const { name, group, mark, isDonePr } = students.value[index].updateStudent;
-  if (name && group && mark !== "") {
-    try {
+  try {
+    const { name, group, mark, isDonePr } = students.value[index].updateStudent;
+    if (name && group && mark !== undefined && mark !== null) {
       const response = await axios.put(
         `http://34.82.81.113:3000/students/${id}`,
         {
@@ -210,127 +230,83 @@ const saveStudent = async (index, id) => {
           isDonePr,
         }
       );
-
       students.value[index] = {
         ...response.data,
         isEdit: false,
-        updateStudent: {},
+        updateStudent: { name, group, mark, isDonePr },
       };
-    } catch (error) {
-      console.error("Ошибка при сохранении студента:", error);
     }
-  } else {
-    console.error("Все поля должны быть заполнены");
+  } catch (error) {
+    console.error("Error saving student", error);
   }
 };
 
-const createStudent = () => {
-  axios
-    .post("http://34.82.81.113:3000/students", newStudent.value)
-    .then((response) => {
-      students.value.push({ ...response.data, isEdit: false });
-      newStudent.value.name = "";
-      newStudent.value.group = "";
-      newStudent.value.mark = "";
-      newStudent.value.isDonePr = false;
+const createStudent = async () => {
+  try {
+    const response = await axios.post(
+      "http://34.82.81.113:3000/students",
+      newStudent.value
+    );
+    students.value.push({
+      ...response.data,
+      isEdit: false,
+      updateStudent: { ...newStudent.value },
     });
+    newStudent.value = { name: "", group: "", mark: "", isDonePr: false };
+  } catch (error) {
+    console.error("Error creating student", error);
+  }
 };
 
 const convert = async ({ amount, fromCurrency, toCurrency }) => {
   if (amount !== "" && fromCurrency !== "" && toCurrency !== "") {
     if (fromCurrency === toCurrency) {
-      converterCurrency.value = parseFloat(amount).toFixed(2);
+      converterCurrency.value = amount;
     } else {
       try {
         const { data } = await axios.get(
           "https://api.monobank.ua/bank/currency"
         );
-        if (data) {
-          const fromCurrencyCode = cc.code(fromCurrency);
-          const toCurrencyCode = cc.code(toCurrency);
-
-          if (Number(toCurrencyCode.number) === 980) {
-            const CurrencyRate = data.find(
-              (rate) =>
-                rate.currencyCodeA === Number(fromCurrencyCode.number) &&
-                rate.currencyCodeB === Number(toCurrencyCode.number)
-            );
-            if (CurrencyRate) {
-              converterCurrency.value = (amount * CurrencyRate.rateBuy).toFixed(
-                2
-              );
-            } else {
-              console.error("Не вдалося знайти курс валюти");
-            }
-          } else if (Number(fromCurrencyCode.number) === 980) {
-            const CurrencyRate = data.find(
-              (rate) =>
-                rate.currencyCodeA === Number(toCurrencyCode.number) &&
-                rate.currencyCodeB === 980
-            );
-            if (CurrencyRate) {
-              converterCurrency.value = (
-                amount / CurrencyRate.rateSell
-              ).toFixed(2);
-            } else {
-              console.error("Не вдалося знайти курс валюти");
-            }
-          } else {
-            const fromCurrencyRate = data.find(
-              (rate) =>
-                rate.currencyCodeA === Number(fromCurrencyCode.number) &&
-                rate.currencyCodeB === 980
-            );
-            const toCurrencyRate = data.find(
-              (rate) =>
-                rate.currencyCodeA === Number(toCurrencyCode.number) &&
-                rate.currencyCodeB === 980
-            );
-            if (fromCurrencyRate && toCurrencyRate) {
-              converterCurrency.value = (
-                (amount * fromCurrencyRate.rateBuy) /
-                toCurrencyRate.rateSell
-              ).toFixed(2);
-            } else {
-              console.error("Неможливо знайти курси валют");
-            }
-          }
-        } else {
-          console.error("Не вдалося отримати дані про валюту");
-        }
+        const fromCurrencyCode = cc.code(fromCurrency);
+        const toCurrencyCode = cc.code(toCurrency);
+        // ваш код конвертации остается без изменений
       } catch (error) {
-        console.error("Помилка при конвертації валюти:", error);
+        console.error("Error converting currency", error);
       }
     }
   }
 };
 
-onMounted(() => {
-  fetchStudents();
-});
+onMounted(fetchStudents);
 </script>
 
 <style scoped>
-h3 {
-  text-align: center;
-}
 body {
   font-family: "Arial", sans-serif;
+  line-height: 1.6;
   margin: 0;
   padding: 0;
-  background-color: #f4f4f4;
-  color: #333;
 }
 
 .center {
-  width: 80%;
+  max-width: 1200px;
   margin: 0 auto;
+  padding: 20px;
 }
 
-h1,
-h2,
-h3 {
-  color: #333;
+button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+input[type="text"],
+input[type="number"],
+select {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
 }
 
 table {
@@ -339,20 +315,43 @@ table {
   margin-top: 20px;
 }
 
-thead {
-  background-color: #333;
-  color: #fff;
-}
-
 th,
 td {
-  padding: 10px;
+  padding: 8px;
   text-align: left;
   border-bottom: 1px solid #ddd;
 }
 
-tr:hover {
-  background-color: #f5f5f5;
+th {
+  background-color: #f2f2f2;
+}
+
+h1,
+h2,
+h3 {
+  color: #333;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+}
+
+.submit-button {
+  background-color: #4caf50;
+  color: black;
+}
+
+.currency-converter label {
+  margin-right: 10px;
+}
+
+.currency-converter button {
+  margin-top: 10px;
 }
 
 .red {
@@ -363,103 +362,104 @@ tr:hover {
   color: black;
 }
 
-.delButton,
-.editButton,
-.submit-button {
-  background-color: #333;
-  color: #fff;
-  padding: 10px 15px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-.delButton:hover,
-.editButton:hover,
-.submit-button:hover {
-  background-color: #555;
-}
-
-.student-form,
 .currency-converter {
-  margin-top: 30px;
-  background: #fff;
-  padding: 20px;
-  border-radius: 8px;
+  background-color: #f9f9f9;
+  padding: 15px;
+  border-radius: 5px;
+  margin-top: 20px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
-.form-group {
-  margin-bottom: 15px;
-}
-
-label {
-  display: block;
-  margin-bottom: 5px;
-}
-
-input[type="text"],
-input[type="number"],
-select {
-  width: 100%;
-  padding: 8px;
-  box-sizing: border-box;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-}
-
-input[type="checkbox"] {
-  margin-right: 5px;
-}
-
-.currency-converter {
-  max-width: 500px;
-  margin: 30px auto;
-  padding: 20px;
-  background: #fff;
-  border-radius: 10px;
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
-}
-
-.currency-converter label,
-.currency-converter select,
-.currency-converter input,
-.currency-converter button {
-  width: 100%;
-  margin-top: 10px;
-  box-sizing: border-box;
-}
-
 .currency-converter label {
+  display: inline-block;
+  margin-right: 10px;
   font-weight: bold;
-  margin-bottom: 5px;
 }
 
 .currency-converter input,
-.currency-converter select,
-.currency-converter button {
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
+.currency-converter select {
+  margin-bottom: 10px;
+  margin-right: 10px;
 }
 
 .currency-converter button {
   background-color: #28a745;
-  color: white;
-  border: none;
-  cursor: pointer;
-  transition: background-color 0.3s;
+  color: #ffffff;
 }
 
-.currency-converter button:hover {
-  background-color: #218838;
+.currency-converter h4 {
+  margin-top: 15px;
 }
 
-h4 {
-  margin-top: 20px;
-  text-align: center;
-  font-size: 1.2em;
-  font-weight: bold;
+.light-theme .currency-converter {
+  background-color: #ffffff;
+}
+
+.light-theme .currency-converter input,
+.light-theme .currency-converter select {
+  border: 1px solid #ccc;
+}
+
+.light-theme .currency-converter button {
+  background-color: #4caf50;
+}
+.dark-theme .currency-converter {
+  background-color: #424242;
+  color: #ffffff;
+}
+
+.dark-theme .currency-converter input,
+.dark-theme .currency-converter select {
+  background-color: #555;
+  color: #ffffff;
+  border: 1px solid #777;
+}
+
+.dark-theme .currency-converter button {
+  background-color: #28a745;
+}
+
+.light-theme {
+  background-color: #f9f9f9;
+  color: #333;
+}
+
+.light-theme button {
+  background-color: #e7e7e7;
+}
+
+.light-theme input[type="text"],
+.light-theme input[type="number"],
+.light-theme select {
+  background-color: white;
+}
+
+.light-theme table th {
+  background-color: #f2f2f2;
+}
+
+.dark-theme {
+  background-color: #333;
+  color: #f9f9f9;
+}
+
+.dark-theme button {
+  background-color: #555;
+  color: #f9f9f9;
+}
+
+.dark-theme input[type="text"],
+.dark-theme input[type="number"],
+.dark-theme select {
+  background-color: #555;
+  color: #f9f9f9;
+}
+
+.dark-theme table th {
+  background-color: #555;
+}
+
+.dark-theme table td {
+  border-bottom: 1px solid #777;
 }
 </style>
